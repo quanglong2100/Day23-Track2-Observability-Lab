@@ -140,6 +140,8 @@ Việc expose metrics của Day 20 (`llama.cpp`) là khó nhất. Lý do là `ll
 ## 6. The single change that mattered most
 
 > **Grader reads this closest.** What one thing about your stack design — a metric you added, a label you dropped, a panel you reorganized, an alert threshold you tuned — made the biggest difference between "works" and "useful"? Write 1-2 paragraphs. Connect it to a concept from the deck.
+
+
 Sự thay đổi tạo ra tác động lớn nhất trong trải nghiệm Lab này không nằm ở các biểu đồ, mà nằm ở việc cấu hình **Routing & Alerting Pipeline (Alertmanager + Slack Webhook)** và tư duy **"Vibe Coding" vs "Robust Engineering"**. Ban đầu, hệ thống bị crash liên tục (`unsupported scheme ""`) vì Docker Compose không tự động expand biến môi trường vào file `alertmanager.yml` trong môi trường Codespaces. Thay vì chỉ vẽ một biểu đồ lỗi đẹp đẽ, tôi nhận ra Observability không có ý nghĩa gì nếu "đường ống báo động" (Alert Pipeline) bị vỡ một cách im lặng (silent failure). 
 
 Việc phải hardcode URL hoặc sửa lại luồng truyền biến môi trường đã dạy tôi một bài học sâu sắc về bài giảng §9 (Postmortems & Runbooks): **Một hệ thống Observability chuẩn Production phải đảm bảo tính tin cậy ngay từ tầng cấu hình hạ tầng**. Hơn nữa, việc gặp lỗi với chuỗi string matching tĩnh (`grep -q '"database":"ok"'`) khi check health của Grafana càng củng cố nguyên tắc: Hệ thống giám sát phải đo lường dựa trên các tín hiệu chuẩn (HTTP Status Code 200) thay vì dựa vào format chuỗi dễ gãy (brittle). Khi nhận được tin nhắn báo cháy 🔥 và khắc phục ✅ trên Slack, đó là lúc hệ thống AI không còn là một hộp đen, mà thực sự trở thành một sản phẩm có thể vận hành và bảo trì được vào lúc 2 giờ sáng.
